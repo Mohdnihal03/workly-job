@@ -44,6 +44,7 @@ const sampleJobs: Job[] = [
 ];
 
 const Index = () => {
+  console.log("Index component is rendering");
   const [jobs, setJobs] = useState<Job[]>(sampleJobs);
   const [searchQuery, setSearchQuery] = useState("");
   const [skillsFilter, setSkillsFilter] = useState<string[]>([]);
@@ -168,3 +169,4 @@ const Index = () => {
 };
 
 export default Index;
+export { Index };
