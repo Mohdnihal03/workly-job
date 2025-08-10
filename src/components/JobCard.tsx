@@ -35,7 +35,7 @@ export function JobCard({ job }: JobCardProps) {
   };
 
   return (
-    <div className="job-card fade-in">
+    <div className="job-card fade-in group">
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex-1">

@@ -154,7 +154,7 @@
   .job-card {
     @apply bg-job-card hover:bg-job-card-hover border border-border rounded-lg p-6;
     @apply transition-all duration-200 hover:shadow-lg hover:shadow-primary/5;
-    @apply cursor-pointer group;
+    @apply cursor-pointer;
   }
   
   .job-tag {
