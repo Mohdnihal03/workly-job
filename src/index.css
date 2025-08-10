@@ -1,15 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Notion-inspired Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
+    /* Base Colors - Clean and Neutral */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 215 25% 27%;
+    
+    /* Grid Pattern */
+    --grid: 220 14% 96%;
+    --grid-dark: 215 28% 17%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -17,17 +22,27 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Brand Colors - Professional and Modern */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 55%;
+    
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 215 25% 27%;
+    --secondary-hover: 220 14% 93%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 142 71% 40%;
+    
+    /* Job Card Colors */
+    --job-card: 0 0% 100%;
+    --job-card-hover: 220 14% 98%;
+    --job-tag: 217 91% 95%;
+    --job-tag-text: 217 91% 40%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -56,26 +71,41 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark Mode Colors */
+    --background: 215 28% 17%;
+    --foreground: 213 31% 91%;
+    
+    /* Grid Pattern */
+    --grid: 215 28% 25%;
+    --grid-dark: 215 28% 17%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 215 28% 17%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 215 28% 17%;
+    --popover-foreground: 213 31% 91%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Brand Colors - Adjusted for Dark Mode */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 65%;
+    
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 213 31% 91%;
+    --secondary-hover: 215 25% 32%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 20% 65%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 142 71% 50%;
+    
+    /* Job Card Colors - Dark Mode */
+    --job-card: 215 25% 27%;
+    --job-card-hover: 215 25% 32%;
+    --job-tag: 217 91% 20%;
+    --job-tag-text: 217 91% 70%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -100,6 +130,43 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  
+  /* Grid Background Pattern */
+  .grid-background {
+    background-image: 
+      linear-gradient(hsl(var(--grid)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--grid)) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .grid-background.dark {
+    background-image: 
+      linear-gradient(hsl(var(--grid)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--grid)) 1px, transparent 1px);
+  }
+}
+
+@layer components {
+  /* Job Card Component Styles */
+  .job-card {
+    @apply bg-job-card hover:bg-job-card-hover border border-border rounded-lg p-6;
+    @apply transition-all duration-200 hover:shadow-lg hover:shadow-primary/5;
+    @apply cursor-pointer group;
+  }
+  
+  .job-tag {
+    @apply bg-job-tag text-job-tag-text text-xs font-medium px-2 py-1 rounded;
+  }
+  
+  /* Animation Classes */
+  .fade-in {
+    @apply animate-in fade-in-0 duration-300;
+  }
+  
+  .slide-up {
+    @apply animate-in slide-in-from-bottom-4 duration-300;
   }
 }
