@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, X } from "lucide-react";
 import { Job } from "./JobCard";
+import { useToast } from "@/components/ui/use-toast";
 
 interface JobPostFormProps {
   onSubmit: (job: Omit<Job, "id" | "postedDate">) => void;
@@ -23,27 +24,51 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
   });
   
   const [currentSkill, setCurrentSkill] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.title && formData.skills.length > 0 && formData.qualification && formData.company && formData.applyLink) {
-      onSubmit({
-        ...formData,
-        location: formData.location || undefined,
+
+    const normalizedSkills = Array.from(
+      new Set([
+        ...formData.skills.map((s) => s.trim()).filter(Boolean),
+        currentSkill.trim(),
+      ].filter(Boolean))
+    );
+
+    const isValid =
+      formData.title.trim() &&
+      formData.qualification.trim() &&
+      formData.company.trim() &&
+      formData.applyLink.trim() &&
+      normalizedSkills.length > 0;
+
+    if (!isValid) {
+      toast({
+        variant: "destructive",
+        title: "Missing required fields",
+        description: "Please fill all required fields and add at least one skill.",
       });
-      
-      // Reset form
-      setFormData({
-        title: "",
-        skills: [],
-        qualification: "",
-        vacancy: 1,
-        company: "",
-        location: "",
-        applyLink: "",
-      });
-      setCurrentSkill("");
+      return;
     }
+
+    onSubmit({
+      ...formData,
+      skills: normalizedSkills,
+      location: formData.location || undefined,
+    });
+
+    // Reset form
+    setFormData({
+      title: "",
+      skills: [],
+      qualification: "",
+      vacancy: 1,
+      company: "",
+      location: "",
+      applyLink: "",
+    });
+    setCurrentSkill("");
   };
 
   const addSkill = () => {
@@ -152,7 +177,7 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
                 <Input
                   value={currentSkill}
                   onChange={(e) => setCurrentSkill(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   placeholder="Add a skill and press Enter"
                   className="flex-1"
                 />
