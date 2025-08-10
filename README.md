@@ -1,18 +1,21 @@
-# Welcome to your Lovable project
+An open-source, single-page job board where freshers, students, and job seekers from **CSE, AI, DS, and BI** can **post and find jobs anonymously**.  
+Minimal, responsive, and inspired by a **Notion-like pad interface** with a smooth light/dark theme toggle.  
 
-## Project info
+> ⚠️ **Note:** Captcha verification and relational database integration are currently **pending**.  
+> Community contributions are welcome!
 
-**URL**: https://lovable.dev/projects/d616b7e2-d4bb-418b-98fb-0d3ac029d32f
+---
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/d616b7e2-d4bb-418b-98fb-0d3ac029d32f) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+- **Anonymous Job Posting** – No account needed.  
+- **Clean Job Cards** – Job Title, Skills, Qualification, Vacancy Count, Company, Location (optional), Posted Date (auto), Apply Link.  
+- **Spam Prevention** – Planned: Email OTP or Captcha check *(pending)*.  
+- **Search & Filters** – Search by job title or skills; filter by skills or posting date.  
+- **Responsive Grid Layout** – Mobile-first, tablet & desktop friendly.  
+- **Light/Dark Mode Toggle** – Smooth animations, eye-friendly UI.  
+- **Community Moderation** – (Planned) Report suspicious posts.  
+- **User Trust Elements** – Clear posting dates & optional verification badges.
 
 **Use your preferred IDE**
 
@@ -60,14 +63,19 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/d616b7e2-d4bb-418b-98fb-0d3ac029d32f) and click on Share -> Publish.
+### We ❤️ open-source!
+- If you'd like to help with:
+- Captcha verification (Google reCAPTCHA, hCaptcha, etc.)
+- Database integration (PostgreSQL/MySQL)
+- Moderation tools
+- Please fork the repo, make changes, and submit a PR.
 
-## Can I connect a custom domain to my Lovable project?
 
-Yes, you can!
+### 🌟 Roadmap
+ - Implement Captcha or Email OTP for spam prevention
+ - Connect to relational database (PostgreSQL/MySQL)
+ - Add moderation/report system
+ - Deploy on Vercel/Netlify
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
