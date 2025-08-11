@@ -9,7 +9,11 @@ import { Job } from "./JobCard";
 import { useToast } from "@/components/ui/use-toast";
 
 interface JobPostFormProps {
-  onSubmit: (job: Omit<Job, "id" | "postedDate">) => void;
+  onSubmit: (job: Omit<Job, "id" | "postedDate"> & {
+    mathAnswer: number;
+    mathA: number;
+    mathB: number;
+  }) => void;
 }
 
 export function JobPostForm({ onSubmit }: JobPostFormProps) {
@@ -24,6 +28,11 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
   });
   
   const [currentSkill, setCurrentSkill] = useState("");
+  
+  // Math captcha state
+  const [mathA] = useState(() => Math.floor(Math.random() * 10) + 1);
+  const [mathB] = useState(() => Math.floor(Math.random() * 10) + 1);
+  const [mathAnswer, setMathAnswer] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,13 +50,14 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
       formData.qualification.trim() &&
       formData.company.trim() &&
       formData.applyLink.trim() &&
-      normalizedSkills.length > 0;
+      normalizedSkills.length > 0 &&
+      mathAnswer.trim();
 
     if (!isValid) {
       toast({
         variant: "destructive",
         title: "Missing required fields",
-        description: "Please fill all required fields and add at least one skill.",
+        description: "Please fill all required fields, add at least one skill, and solve the math problem.",
       });
       return;
     }
@@ -56,6 +66,9 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
       ...formData,
       skills: normalizedSkills,
       location: formData.location || undefined,
+      mathAnswer: parseInt(mathAnswer),
+      mathA,
+      mathB,
     });
 
     // Reset form
@@ -69,6 +82,7 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
       applyLink: "",
     });
     setCurrentSkill("");
+    setMathAnswer("");
   };
 
   const addSkill = () => {
@@ -219,6 +233,22 @@ export function JobPostForm({ onSubmit }: JobPostFormProps) {
               placeholder="https://company.com/careers/apply"
               required
               className="mt-1"
+            />
+          </div>
+
+          {/* Math Captcha */}
+          <div className="bg-muted p-4 rounded-lg border border-border">
+            <Label htmlFor="mathAnswer" className="text-foreground">
+              Spam Protection: What is {mathA} + {mathB}? *
+            </Label>
+            <Input
+              id="mathAnswer"
+              type="number"
+              value={mathAnswer}
+              onChange={(e) => setMathAnswer(e.target.value)}
+              placeholder="Enter the answer"
+              required
+              className="mt-2 w-32"
             />
           </div>
 

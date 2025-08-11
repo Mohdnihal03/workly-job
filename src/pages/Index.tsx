@@ -87,44 +87,49 @@ const Index = () => {
       return matchesSearch && matchesSkills && matchesDate;
     });
   }, [jobs, searchQuery, skillsFilter, dateFilter]);
-  const handleJobSubmit = async (jobData: Omit<Job, "id" | "postedDate">) => {
+  const handleJobSubmit = async (jobData: Omit<Job, "id" | "postedDate"> & {
+    mathAnswer: number;
+    mathA: number;
+    mathB: number;
+  }) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('jobs').insert({
-        title: jobData.title,
-        skills: jobData.skills,
-        qualification: jobData.qualification,
-        vacancy: jobData.vacancy,
-        company: jobData.company,
-        location: jobData.location || null,
-        apply_link: jobData.applyLink
-      }).select().single();
-      if (error) throw error;
+      const response = await supabase.functions.invoke('post-job', {
+        body: {
+          title: jobData.title,
+          skills: jobData.skills,
+          qualification: jobData.qualification,
+          vacancy: jobData.vacancy,
+          company: jobData.company,
+          location: jobData.location || null,
+          applyLink: jobData.applyLink,
+          mathAnswer: jobData.mathAnswer,
+          mathA: jobData.mathA,
+          mathB: jobData.mathB,
+        }
+      });
 
-      // Transform and add to local state
-      const newJob: Job = {
-        id: data.id,
-        title: data.title,
-        skills: data.skills,
-        qualification: data.qualification,
-        vacancy: data.vacancy,
-        company: data.company,
-        location: data.location || '',
-        postedDate: data.created_at,
-        applyLink: data.apply_link
-      };
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to post job');
+      }
+
+      const { data } = response;
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Add new job to local state
+      const newJob: Job = data.job;
       setJobs([newJob, ...jobs]);
+      
       toast({
         title: "Success!",
         description: "Job posted successfully!"
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error posting job:', error);
       toast({
         title: "Error",
-        description: "Failed to post job. Please try again.",
+        description: error.message || "Failed to post job. Please try again.",
         variant: "destructive"
       });
     }
