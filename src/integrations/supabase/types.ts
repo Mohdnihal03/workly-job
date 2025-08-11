@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      job_post_submissions: {
+        Row: {
+          created_at: string
+          id: string
+          ip: unknown
+          job_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip: unknown
+          job_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: unknown
+          job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_submissions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           apply_link: string
