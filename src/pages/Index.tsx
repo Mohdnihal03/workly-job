@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { JobCard, Job } from "@/components/JobCard";
 import { JobPostForm } from "@/components/JobPostForm";
@@ -6,49 +6,59 @@ import { SearchFilters } from "@/components/SearchFilters";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle, Briefcase } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Sample jobs data for demonstration
-const sampleJobs: Job[] = [
-  {
-    id: "1",
-    title: "Frontend Developer",
-    skills: ["React", "TypeScript", "Tailwind CSS", "JavaScript"],
-    qualification: "B.Tech/B.E. in Computer Science",
-    vacancy: 2,
-    company: "TechCorp Solutions",
-    location: "Bangalore, India",
-    postedDate: new Date().toISOString(),
-    applyLink: "https://example.com/apply/frontend"
-  },
-  {
-    id: "2",
-    title: "Data Scientist",
-    skills: ["Python", "Machine Learning", "SQL", "TensorFlow"],
-    qualification: "M.Sc. in Data Science or equivalent",
-    vacancy: 1,
-    company: "DataInsights Inc",
-    location: "Remote",
-    postedDate: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-    applyLink: "https://example.com/apply/data-scientist"
-  },
-  {
-    id: "3",
-    title: "Full Stack Developer",
-    skills: ["Node.js", "React", "MongoDB", "Express.js", "AWS"],
-    qualification: "B.Tech/M.Tech in CSE",
-    vacancy: 3,
-    company: "StartupXYZ",
-    postedDate: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-    applyLink: "https://example.com/apply/fullstack"
-  }
-];
 
 const Index = () => {
   console.log("Index component is rendering");
-  const [jobs, setJobs] = useState<Job[]>(sampleJobs);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [skillsFilter, setSkillsFilter] = useState<string[]>([]);
   const [dateFilter, setDateFilter] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Fetch jobs from Supabase on component mount
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform Supabase data to match Job interface
+      const transformedJobs: Job[] = data.map(job => ({
+        id: job.id,
+        title: job.title,
+        skills: job.skills,
+        qualification: job.qualification,
+        vacancy: job.vacancy,
+        company: job.company,
+        location: job.location || '',
+        postedDate: job.created_at,
+        applyLink: job.apply_link
+      }));
+
+      setJobs(transformedJobs);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load jobs. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Get all unique skills for filter options
   const availableSkills = useMemo(() => {
@@ -84,13 +94,51 @@ const Index = () => {
     });
   }, [jobs, searchQuery, skillsFilter, dateFilter]);
 
-  const handleJobSubmit = (jobData: Omit<Job, "id" | "postedDate">) => {
-    const newJob: Job = {
-      ...jobData,
-      id: Date.now().toString(),
-      postedDate: new Date().toISOString(),
-    };
-    setJobs([newJob, ...jobs]);
+  const handleJobSubmit = async (jobData: Omit<Job, "id" | "postedDate">) => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .insert({
+          title: jobData.title,
+          skills: jobData.skills,
+          qualification: jobData.qualification,
+          vacancy: jobData.vacancy,
+          company: jobData.company,
+          location: jobData.location || null,
+          apply_link: jobData.applyLink
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Transform and add to local state
+      const newJob: Job = {
+        id: data.id,
+        title: data.title,
+        skills: data.skills,
+        qualification: data.qualification,
+        vacancy: data.vacancy,
+        company: data.company,
+        location: data.location || '',
+        postedDate: data.created_at,
+        applyLink: data.apply_link
+      };
+
+      setJobs([newJob, ...jobs]);
+      
+      toast({
+        title: "Success!",
+        description: "Job posted successfully!",
+      });
+    } catch (error) {
+      console.error('Error posting job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to post job. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -140,7 +188,12 @@ const Index = () => {
             </div>
 
             {/* Jobs Grid */}
-            {filteredJobs.length > 0 ? (
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading jobs...</p>
+              </div>
+            ) : filteredJobs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredJobs.map((job) => (
                   <JobCard key={job.id} job={job} />

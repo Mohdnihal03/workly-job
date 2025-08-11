@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      jobs: {
+        Row: {
+          apply_link: string
+          company: string
+          created_at: string
+          id: string
+          location: string | null
+          qualification: string
+          skills: string[]
+          title: string
+          updated_at: string
+          vacancy: number
+        }
+        Insert: {
+          apply_link: string
+          company: string
+          created_at?: string
+          id?: string
+          location?: string | null
+          qualification: string
+          skills?: string[]
+          title: string
+          updated_at?: string
+          vacancy?: number
+        }
+        Update: {
+          apply_link?: string
+          company?: string
+          created_at?: string
+          id?: string
+          location?: string | null
+          qualification?: string
+          skills?: string[]
+          title?: string
+          updated_at?: string
+          vacancy?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
