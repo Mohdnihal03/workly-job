@@ -8,8 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle, Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-
 const Index = () => {
   console.log("Index component is rendering");
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -17,21 +15,23 @@ const Index = () => {
   const [skillsFilter, setSkillsFilter] = useState<string[]>([]);
   const [dateFilter, setDateFilter] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Fetch jobs from Supabase on component mount
   useEffect(() => {
     fetchJobs();
   }, []);
-
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('jobs').select('*').order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
 
       // Transform Supabase data to match Job interface
@@ -46,14 +46,13 @@ const Index = () => {
         postedDate: job.created_at,
         applyLink: job.apply_link
       }));
-
       setJobs(transformedJobs);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       toast({
         title: "Error",
         description: "Failed to load jobs. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -71,14 +70,10 @@ const Index = () => {
   const filteredJobs = useMemo(() => {
     return jobs.filter(job => {
       // Search filter
-      const matchesSearch = searchQuery === "" || 
-        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        job.company.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = searchQuery === "" || job.title.toLowerCase().includes(searchQuery.toLowerCase()) || job.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) || job.company.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Skills filter
-      const matchesSkills = skillsFilter.length === 0 ||
-        skillsFilter.some(filterSkill => job.skills.includes(filterSkill));
+      const matchesSkills = skillsFilter.length === 0 || skillsFilter.some(filterSkill => job.skills.includes(filterSkill));
 
       // Date filter
       let matchesDate = true;
@@ -89,27 +84,23 @@ const Index = () => {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         matchesDate = diffDays <= dateFilter;
       }
-
       return matchesSearch && matchesSkills && matchesDate;
     });
   }, [jobs, searchQuery, skillsFilter, dateFilter]);
-
   const handleJobSubmit = async (jobData: Omit<Job, "id" | "postedDate">) => {
     try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .insert({
-          title: jobData.title,
-          skills: jobData.skills,
-          qualification: jobData.qualification,
-          vacancy: jobData.vacancy,
-          company: jobData.company,
-          location: jobData.location || null,
-          apply_link: jobData.applyLink
-        })
-        .select()
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('jobs').insert({
+        title: jobData.title,
+        skills: jobData.skills,
+        qualification: jobData.qualification,
+        vacancy: jobData.vacancy,
+        company: jobData.company,
+        location: jobData.location || null,
+        apply_link: jobData.applyLink
+      }).select().single();
       if (error) throw error;
 
       // Transform and add to local state
@@ -124,25 +115,21 @@ const Index = () => {
         postedDate: data.created_at,
         applyLink: data.apply_link
       };
-
       setJobs([newJob, ...jobs]);
-      
       toast({
         title: "Success!",
-        description: "Job posted successfully!",
+        description: "Job posted successfully!"
       });
     } catch (error) {
       console.error('Error posting job:', error);
       toast({
         title: "Error",
         description: "Failed to post job. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background grid-background">
+  return <div className="min-h-screen bg-background grid-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <header className="flex items-center justify-between mb-8">
@@ -151,7 +138,7 @@ const Index = () => {
               <Briefcase className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">AnonJobs</h1>
+              <h1 className="text-2xl font-bold text-foreground">Workly</h1>
               <p className="text-sm text-muted-foreground">Anonymous job board for CSE, AI, DS & BI</p>
             </div>
           </div>
@@ -173,12 +160,7 @@ const Index = () => {
 
           <TabsContent value="browse" className="space-y-6">
             {/* Search and Filters */}
-            <SearchFilters
-              onSearch={setSearchQuery}
-              onFilterBySkills={setSkillsFilter}
-              onFilterByDate={setDateFilter}
-              availableSkills={availableSkills}
-            />
+            <SearchFilters onSearch={setSearchQuery} onFilterBySkills={setSkillsFilter} onFilterByDate={setDateFilter} availableSkills={availableSkills} />
 
             {/* Job Count */}
             <div className="flex items-center justify-between">
@@ -188,28 +170,18 @@ const Index = () => {
             </div>
 
             {/* Jobs Grid */}
-            {loading ? (
-              <div className="text-center py-12">
+            {loading ? <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
                 <p className="text-muted-foreground">Loading jobs...</p>
-              </div>
-            ) : filteredJobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredJobs.map((job) => (
-                  <JobCard key={job.id} job={job} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
+              </div> : filteredJobs.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredJobs.map(job => <JobCard key={job.id} job={job} />)}
+              </div> : <div className="text-center py-12">
                 <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">No jobs found</h3>
                 <p className="text-muted-foreground">
-                  {searchQuery || skillsFilter.length > 0 || dateFilter !== null
-                    ? "Try adjusting your search filters"
-                    : "Be the first to post a job!"}
+                  {searchQuery || skillsFilter.length > 0 || dateFilter !== null ? "Try adjusting your search filters" : "Be the first to post a job!"}
                 </p>
-              </div>
-            )}
+              </div>}
           </TabsContent>
 
           <TabsContent value="post">
@@ -217,9 +189,7 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
 export { Index };
